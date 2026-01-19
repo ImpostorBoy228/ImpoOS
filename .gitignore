@@ -1,5 +1,9 @@
-64bit_alpha/
-build.sh
-*.bin
-*.elf
 *.o
+*.elf
+*.bin
+kernel.bin
+stage*.bin
+
+*.log
+temp/
+build.log
