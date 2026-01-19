@@ -1,0 +1,5 @@
+64bit_alpha/
+build.sh
+*.bin
+*.elf
+*.o
