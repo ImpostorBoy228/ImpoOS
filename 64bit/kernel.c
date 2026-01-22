@@ -1,25 +1,33 @@
 #include <stdint.h>
+#include <stddef.h>
+
+// Объявляем функции из других файлов, чтобы компилятор не ругался
+extern void gdt_install();
+extern void idt_install();
+extern void kprint(const char* str);
+extern void terminal_clear();
 
 void kernel_main() {
-    // Указатель на видеопамять (цветной текст)
-    // 0xB8000 - стандартный адрес для текста
-    char* video_memory = (char*)0xb8000;
-
-    const char* str = "ImpoOS (GRUB edition) - 64 bit is HERE!";
+    // 1. Инициализация критических таблиц
+    gdt_install();
+    idt_install();
     
-    // Очистка экрана (заполняем пробелами с черным фоном)
-    for (int i = 0; i < 80 * 25 * 2; i += 2) {
-        video_memory[i] = ' ';
-        video_memory[i+1] = 0x07; // Серый на черном
-    }
+    // 2. Инициализация экрана (используем функции терминала)
+    terminal_clear();
+    
+    kprint("ImpoOS (GRUB edition) - 64 bit\n");
+    kprint("----------------------------\n");
+    kprint("GDT installed: OK (Ring 0 setup)\n");
+    kprint("IDT installed: OK (Exceptions ready)\n");
+    
+    // 3. Тест прерываний (раскомментируй для проверки)
+    // Внимание: если IDT настроена неверно, QEMU уйдет в бесконечный ребут (Triple Fault)
+    // __asm__ volatile ("int $0"); 
 
-    // Пишем строку (Зеленый текст на черном)
-    int j = 0;
-    for (int i = 0; str[i] != '\0'; i++) {
-        video_memory[j] = str[i];
-        video_memory[j+1] = 0x02; // 0x02 = Зеленый цвет
-        j += 2;
-    }
+    kprint("\nSystem is running in Ring 0.\n");
+    kprint("Waiting for interrupts...\n");
 
-    while(1);
+    while(1) {
+        __asm__ volatile ("hlt"); // Экономим ресурсы процессора
+    }
 }

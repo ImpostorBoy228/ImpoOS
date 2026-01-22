@@ -10,9 +10,11 @@ nasm -f elf64 long_mode_init.asm -o long_mode_init.o
 
 # 2. Компиляция C
 gcc -c kernel.c -o kernel.o -ffreestanding -m64 -mno-red-zone
+gcc -c gdt.c -o gdt.o -ffreestanding -m64 -mno-red-zone
+gcc -c idt.c -o idt.o -ffreestanding -m64 -mno-red-zone
 
 # 3. Линковка
-ld -n -o kernel.bin -T linker.ld header.o boot.o long_mode_init.o kernel.o --no-warn-rwx-segments
+ld -n -o kernel.bin -T linker.ld header.o boot.o long_mode_init.o kernel.o gdt.o idt.o --no-warn-rwx-segments
 
 # 4. Создание ISO структуры
 mkdir -p isodir/boot/grub
