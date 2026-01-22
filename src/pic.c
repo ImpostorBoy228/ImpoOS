@@ -1,0 +1,23 @@
+#include "io.h"
+
+void pic_remap() {
+    // Инициализация (ICW1)
+    outb(0x20, 0x11);
+    outb(0xA0, 0x11);
+
+    // Смещение векторов: IRQ 0-7 -> 0x20-0x27, IRQ 8-15 -> 0x28-0x2F
+    outb(0x21, 0x20);
+    outb(0xA1, 0x28);
+
+    // Связка Master и Slave PIC
+    outb(0x21, 0x04);
+    outb(0xA1, 0x02);
+
+    // Режим 8086
+    outb(0x21, 0x01);
+    outb(0xA1, 0x01);
+
+    // Маскируем всё, кроме клавиатуры (IRQ 1)
+    outb(0x21, 0xFD); // 11111101b
+    outb(0xA1, 0xFF);
+}

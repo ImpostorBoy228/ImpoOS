@@ -11,7 +11,8 @@ ASFLAGS = -f elf64
 # Список объектных файлов (генерируется из исходников в src/)
 # Мы явно указываем порядок для загрузчика (header должен быть первым)
 OBJ = src/header.o src/boot.o src/long_mode_init.o \
-      src/kernel.o src/gdt.o src/idt.o src/terminal.o
+      src/kernel.o src/gdt.o src/idt.o src/terminal.o \
+      src/pic.o src/keyboard.o src/interrupt.o
 
 # Главная цель
 all: os.iso
