@@ -3,6 +3,8 @@
 *.bin
 kernel.bin
 stage*.bin
+*/limine/
+*/iso_root/
 
 *.log
 temp/
