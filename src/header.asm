@@ -1,15 +1,13 @@
 section .multiboot_header
+align 8
+
 header_start:
-    ; Магическое число Multiboot 2
-    dd 0xe85250d6
-    ; Архитектура: 0 (i386 - 32-bit protected mode)
-    dd 0
-    ; Длина заголовка
+    dd 0xe85250d6          ; magic
+    dd 0                  ; architecture (i386)
     dd header_end - header_start
-    ; Чексумма
     dd 0x100000000 - (0xe85250d6 + 0 + (header_end - header_start))
 
-    ; Тег завершения
+    ; end tag
     dw 0
     dw 0
     dd 8
