@@ -12,7 +12,9 @@ ASFLAGS = -f elf64
 # Мы явно указываем порядок для загрузчика (header должен быть первым)
 OBJ = src/header.o src/boot.o src/long_mode_init.o \
       src/kernel.o src/gdt.o src/idt.o src/terminal.o \
-      src/pic.o src/keyboard.o src/interrupt.o
+      src/pic.o src/keyboard.o src/interrupt.o \
+      src/tty.o src/syscall.o src/syscall.asm.o \
+      src/task.o src/task.asm.o
 
 # Главная цель
 all: os.iso
@@ -38,6 +40,15 @@ kernel.bin: $(OBJ)
 
 # Правило для компиляции .asm файлов
 %.o: %.asm
+	@echo "--- Assembling ASM: $< ---"
+	$(AS) $(ASFLAGS) $< -o $@
+
+# Специальные правила для .asm файлов (чтобы избежать конфликта имен)
+src/syscall.asm.o: src/syscall.asm
+	@echo "--- Assembling ASM: $< ---"
+	$(AS) $(ASFLAGS) $< -o $@
+
+src/task.asm.o: src/task.asm
 	@echo "--- Assembling ASM: $< ---"
 	$(AS) $(ASFLAGS) $< -o $@
 

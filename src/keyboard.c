@@ -1,4 +1,5 @@
 #include "io.h"
+#include "tty.h"
 extern void terminal_putchar(char c);
 
 // Простейшая таблица скан-кодов (Сет 1)
@@ -15,7 +16,16 @@ void keyboard_handler_main() {
     // Если 7-й бит не установлен — это нажатие клавиши (а не отпускание)
     if (!(scancode & 0x80)) {
         if (kbd_us[scancode] != 0) {
-            terminal_putchar(kbd_us[scancode]);
+            char c = kbd_us[scancode];
+            
+            // Записываем в TTY буфер
+            tty_putchar_input(c);
+            
+            // Если включен echo, выводим на экран
+            struct tty* t = tty_get_current();
+            if (t->echo) {
+                terminal_putchar(c);
+            }
         }
     }
 

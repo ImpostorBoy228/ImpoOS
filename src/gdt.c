@@ -16,7 +16,14 @@ struct gdt_ptr {
     uint64_t base;
 } __attribute__((packed));
 
-struct gdt_entry gdt[3];
+// Расширяем GDT для поддержки ring3
+// 0: NULL
+// 1: Kernel Code (ring0)
+// 2: Kernel Data (ring0)
+// 3: User Code (ring3)
+// 4: User Data (ring3)
+// 5: TSS (для переключения задач, если понадобится)
+struct gdt_entry gdt[6];
 struct gdt_ptr gp;
 
 // Функция для установки записи в GDT
@@ -32,7 +39,7 @@ void gdt_set_gate(int num, uint32_t base, uint32_t limit, uint8_t access, uint8_
 
 // Загрузка GDT (реализуем через inline assembly)
 void gdt_install() {
-    gp.limit = (sizeof(struct gdt_entry) * 3) - 1;
+    gp.limit = (sizeof(struct gdt_entry) * 6) - 1;
     gp.base  = (uint64_t)&gdt;
 
     // Пустой дескриптор
@@ -41,8 +48,16 @@ void gdt_install() {
     // Access: 0x9A = 10011010b (Present, Ring 0, Code, Executable, Readable)
     // Granularity: 0x20 = Long Mode флаг
     gdt_set_gate(1, 0, 0xFFFFFFFF, 0x9A, 0x20);
-    // Дескриптор данных
+    // Дескриптор данных (Kernel Mode)
     gdt_set_gate(2, 0, 0xFFFFFFFF, 0x92, 0x00);
+    // Дескриптор кода (User Mode, ring3, 64-bit)
+    // Access: 0xFA = 11111010b (Present, Ring 3, Code, Executable, Readable)
+    gdt_set_gate(3, 0, 0xFFFFFFFF, 0xFA, 0x20);
+    // Дескриптор данных (User Mode, ring3)
+    // Access: 0xF2 = 11110010b (Present, Ring 3, Data, Writable)
+    gdt_set_gate(4, 0, 0xFFFFFFFF, 0xF2, 0x00);
+    // TSS (пока пустой, можно добавить позже)
+    gdt_set_gate(5, 0, 0, 0, 0);
 
     __asm__ volatile("lgdt %0" : : "m"(gp));
 }
