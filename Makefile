@@ -47,4 +47,8 @@ clean:
 
 # Запуск в QEMU
 run: os.iso
-	qemu-system-x86_64 -cdrom os.iso
+	qemu-system-x86_64 \
+	-cdrom os.iso \
+	-m 512M \
+	-serial stdio \
+	-no-reboot
